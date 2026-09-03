@@ -80,6 +80,22 @@ struct TrustedService {
   expirationSeconds @1 :UInt32;
   returnsAttrs      @2 :List(AttrMapping);
   identityAttrs     @3 :List(Text);
+  oidc              @4 :OidcConfig;   # populated only when Service.kind.trusted == "oidc"
+}
+
+# Configuration for an `api = "oidc"` trusted service. The visa service performs
+# no OIDC discovery: everything it needs is pinned here and signed with the policy.
+struct OidcConfig {
+  issuer             @0 :Text;        # e.g. https://accounts.google.com
+  jwksUri            @1 :Text;        # pinned; e.g. https://www.googleapis.com/oauth2/v3/certs
+  clientId           @2 :Text;
+  clientSecret       @3 :Text;        # optional; NOT a secret for public clients (RFC 8252 s8.5); "" = none
+  scopes             @4 :List(Text);  # e.g. ["openid","email","profile"]
+  allowedDomains     @5 :List(Text);  # matched against the `hd` claim; ["*"] = any account (explicit opt-in)
+  maxAuthAgeSeconds  @6 :UInt32;      # 0 = unlimited
+  allowOfflineAccess @7 :Bool;
+  seedJwks           @8 :Text;        # JSON JWKS document for cold start
+  jwksProxyService   @9 :Text;        # fabric service id of the CONNECT proxy; "" = direct egress
 }
 
 # Directly maps to the ZPLC "returns_attributes" mapping
