@@ -81,6 +81,7 @@ struct TrustedService {
   returnsAttrs      @2 :List(AttrMapping);
   identityAttrs     @3 :List(Text);
   oidc              @4 :OidcConfig;   # populated only when Service.kind.trusted == "oidc"
+  attrQuery         @5 :AttrQueryConfig;   # populated only when Service.kind.trusted == "zpr-attr/1"
 }
 
 # Configuration for an `api = "oidc"` trusted service. The visa service performs
@@ -96,6 +97,14 @@ struct OidcConfig {
   allowOfflineAccess @7 :Bool;
   seedJwks           @8 :Text;        # JSON JWKS document for cold start
   jwksProxyService   @9 :Text;        # fabric service id of the CONNECT proxy; "" = direct egress
+}
+
+# Configuration for an `api = "zpr-attr/1"` attribute service. The bearer token the
+# visa service presents is deliberately NOT here: policy is signed and distributed.
+struct AttrQueryConfig {
+  url            @0 :Text;    # https base URL; the visa service appends /query and /schema
+  caCertPem      @1 :Text;    # PEM certificate block(s) to trust for this service; "" = system roots
+  timeoutSeconds @2 :UInt32;  # whole-request timeout; compiler defaults 5, caps 30
 }
 
 # Directly maps to the ZPLC "returns_attributes" mapping
